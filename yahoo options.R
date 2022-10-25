@@ -1,8 +1,9 @@
 library(rvest)
 library(tidyverse)
 library(dplyr)
+library(lubridate)
 
-ticker <- "F"
+#ticker <- c("UBER")
 
 calls <- paste0('https://finance.yahoo.com/quote/',ticker,'/options?p=',ticker,'')
 # Use read_html to fetch the webpage
@@ -32,9 +33,13 @@ df_calls <- df_calls %>%
     Implied_Vol = X11
   )
 
-#add new column
+#add new columns
 df_calls$symbol <- ticker
+df_calls$ExpDate <-ceiling_date(Sys.Date(), "week", week_start = getOption("lubridate.week.start", 1))-3
 
+#final dataframe
 ticker_df <- df_calls %>%
-              select(symbol,Contract_Name, Strike,Last_Price, Volume, Open_Interest)
+              select(symbol,Contract_Name, Strike,Last_Price, Volume, Open_Interest,ExpDate) %>%
+                filter(Strike >= round(level_2_strike_max))
+  
 

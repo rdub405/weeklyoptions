@@ -3,10 +3,9 @@ library(dplyr)
 library(lubridate)
 
 options(warn = -1)
-ticker <- c("F")
-
-from.date <- "2022-08-01"
-to.date <- "2022-10-24"
+#ticker <- c("UBER")
+#from.date <- "2022-08-01"
+#to.date <- "2022-10-25"
 
 #####################################################Build dataset############################
 df <- tq_get(x = ticker, from = from.date, to = to.date)
@@ -49,11 +48,13 @@ below_strike <-(round(level_2_strike_max) - last_price)/last_price
 paste(ticker, ", Strike Price:", round(level_2_strike_max), "Below Strike By:", (below_strike*100))
 
 
+df_strike <- data.frame(matrix(c("symbol" = c(ticker), "strike_price" = c(round(level_2_strike_max)), "strike_from_percent" = c(below_strike))))
 
+#df_strike <- data.frame(matrix(ncol=3,nrow=0, dimnames=list(NULL, c("symbol", "strike_price", "strike_from_percent"))))
 
+#df_strike <- data.frame(matrix(ncol=3,nrow=0, dimnames=list(NULL, c("symbol", "strike_price", "strike_from_percent"))))
 
-
-
+#df_strike <- rbind(c(ticker, round(level_2_strike_max),below_strike ))
 
 
 
