@@ -3,9 +3,10 @@ library(dplyr)
 library(lubridate)
 
 options(warn = -1)
-#ticker <- c("UBER")
-#from.date <- "2022-08-01"
-#to.date <- "2022-10-25"
+#ticker <- c("PLTR")
+#days_back <- 90
+#from.date <- Sys.Date()-days_back
+#to.date <- Sys.Date()
 
 #####################################################Build dataset############################
 df <- tq_get(x = ticker, from = from.date, to = to.date)
@@ -31,6 +32,7 @@ avg_percent <- mean(df3$pct_change, na.rm = TRUE)
 
 #get the last price
 last_price <- tail(df3$close, n=1)
+open_price <- tail(df$open, n=1)
 
 #Target Strike Price
 #level_1_target <- last_price * avg_percent
@@ -51,11 +53,6 @@ paste(ticker, ", Strike Price:", round(level_2_strike_max), "Below Strike By:", 
 df_strike <- data.frame(matrix(c("symbol" = c(ticker), "strike_price" = c(round(level_2_strike_max)), "strike_from_percent" = c(below_strike))))
 
 #df_strike <- data.frame(matrix(ncol=3,nrow=0, dimnames=list(NULL, c("symbol", "strike_price", "strike_from_percent"))))
-
-#df_strike <- data.frame(matrix(ncol=3,nrow=0, dimnames=list(NULL, c("symbol", "strike_price", "strike_from_percent"))))
-
-#df_strike <- rbind(c(ticker, round(level_2_strike_max),below_strike ))
-
 
 
 
