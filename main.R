@@ -1,15 +1,15 @@
-#main script to execute yahoo options and strikc options 
 
-ticker <- c("CHPT")
+ticker <- toupper(c("soxl"))
 
-days_back <- 90
+days_back <- 100
+#strike_price <- 11
 
 from.date <- Sys.Date()-days_back
 to.date <- Sys.Date()
 
-source("C:\\Users\\williarl\\OneDrive - Continental Resources\\Documents\\R Projects\\StrikePrice\\strike option.R")
-source("C:\\Users\\williarl\\OneDrive - Continental Resources\\Documents\\R Projects\\StrikePrice\\yahoo options.R")
-source("C:\\Users\\williarl\\OneDrive - Continental Resources\\Documents\\R Projects\\StrikePrice\\option viz.R")
+source("C:\\Users\\wi\\R Projects\\StrikePrice\\strike option.R")
+source("C:\\Users\\wi\\Documents\\R Projects\\StrikePrice\\yahoo options.R")
+source("C:\\Users\\wi\\Documents\\R Projects\\StrikePrice\\option viz.R")
 
 #show plot
 sp
