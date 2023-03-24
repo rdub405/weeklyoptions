@@ -1,0 +1,57 @@
+library(data.table)
+library(quantmod)
+
+
+data <- read.csv("C:\\export files\\results\\sp500names.csv")
+
+# Define a vector of stock symbols
+symbols <- data$ticker
+
+
+# Initialize an empty list to store the results
+results <- list()
+
+# Loop through each stock symbol
+for (symbol in symbols) {
+  # Retrieve stock price data for the past year
+  start_date <- Sys.Date() - 365
+  end_date <- Sys.Date()
+  getSymbols(symbol, from = start_date, to = end_date)
+  
+  # Calculate the RSI indicator
+  rsi <- RSI(Cl(get(symbol)))
+  
+  # Get the last closing price
+  last_price <- as.numeric(Cl(get(symbol))[nrow(get(symbol))])
+  
+  # Flag the stock based on its RSI value
+  if (rsi[length(rsi)] < 30) {
+    flag <- "BUY"
+  } else if (rsi[length(rsi)] > 70) {
+    flag <- "SELL"
+  } else {
+    flag <- "HOLD"
+  }
+  
+  # Store the results in a data frame
+  result <- data.frame(symbol = symbol,
+                       date = index(rsi)[length(rsi)],
+                       last_price = last_price,
+                       rsi = rsi[length(rsi)],
+                       flag = flag)
+  
+  # Append the data frame to the list of results
+  results[[symbol]] <- result
+}
+
+# Combine the results into a single data table
+results_dt <- rbindlist(results)
+
+
+# Filter the results table to only include rows with "BUY" or "SELL" flags
+results_filtered <- results_dt[flag %in% c("BUY", "SELL")]
+
+# Print the filtered results
+print(results_filtered)
+
+write.csv(results_filtered, "C:\\export files\\results\\sp500.csv")
