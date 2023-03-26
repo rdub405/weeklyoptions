@@ -1,0 +1,164 @@
+library(data.table)
+library(quantmod)
+
+#data <- read.csv("C:\\Users\\Rlwca\\OneDrive\\Documents\\r code\\stocklist.csv")
+#symbols <- data$ticker
+
+# Define a vector of stock symbols
+symbols <- c("ATVI",
+             "ADBE",
+             "ADP",
+             "ABNB",
+             "ALGN",
+             "GOOGL",
+             "GOOG",
+             "AMZN",
+             "AMD",
+             "AEP",
+             "AMGN",
+             "ADI",
+             "ANSS",
+             "AAPL",
+             "AMAT",
+             "ASML",
+             "AZN",
+             "TEAM",
+             "ADSK",
+             "BKR",
+             "BIIB",
+             "BKNG",
+             "AVGO",
+             "CDNS",
+             "CHTR",
+             "CTAS",
+             "CSCO",
+             "CTSH",
+             "CMCSA",
+             "CEG",
+             "CPRT",
+             "CSGP",
+             "COST",
+             "CRWD",
+             "CSX",
+             "DDOG",
+             "DXCM",
+             "FANG",
+             "DLTR",
+             "EBAY",
+             "EA",
+             "ENPH",
+             "EXC",
+             "FAST",
+             "FISV",
+             "FTNT",
+             "GILD",
+             "GFS",
+             "HON",
+             "IDXX",
+             "ILMN",
+             "INTC",
+             "INTU",
+             "ISRG",
+             "JD",
+             "KDP",
+             "KLAC",
+             "KHC",
+             "LRCX",
+             "LCID",
+             "LULU",
+             "MAR",
+             "MRVL",
+             "MELI",
+             "META",
+             "MCHP",
+             "MU",
+             "MSFT",
+             "MRNA",
+             "MDLZ",
+             "MNST",
+             "NFLX",
+             "NVDA",
+             "NXPI",
+             "ORLY",
+             "ODFL",
+             "PCAR",
+             "PANW",
+             "PAYX",
+             "PYPL",
+             "PDD",
+             "PEP",
+             "QCOM",
+             "REGN",
+             "RIVN",
+             "ROST",
+             "SGEN",
+             "SIRI",
+             "SBUX",
+             "SNPS",
+             "TMUS",
+             "TSLA",
+             "TXN",
+             "VRSK",
+             "VRTX",
+             "WBA",
+             "WBD",
+             "WDAY",
+             "XEL",
+             "ZM",
+             "ZS"
+)
+
+# Initialize an empty list to store the results
+results <- list()
+
+# Loop through each stock symbol
+for (symbol in symbols) {
+  # Retrieve stock price data for the past year
+  start_date <- Sys.Date() - 365
+  end_date <- Sys.Date()
+  getSymbols(symbol, from = start_date, to = end_date)
+  
+  # Calculate the RSI indicator
+  rsi <- RSI(Cl(get(symbol)))
+  
+  # Calculate the RSI moving average
+  rsi_ma <- SMA(rsi, n = 14)
+  
+  # Get the last closing price
+  last_price <- as.numeric(Cl(get(symbol))[nrow(get(symbol))])
+  
+  # Check if the RSI is crossing the RSI MA line
+  if (length(rsi_ma) == length(rsi) && rsi[length(rsi)] > rsi_ma[length(rsi_ma)] && rsi[length(rsi) - 1] <= rsi_ma[length(rsi_ma) - 1]) {
+    flag <- "BUY"
+  } else if (length(rsi_ma) == length(rsi) && rsi[length(rsi)] < rsi_ma[length(rsi_ma)] && rsi[length(rsi) - 1] >= rsi_ma[length(rsi_ma) - 1]) {
+    flag <- "SELL"
+  } else {
+    flag <- "HOLD"
+  }
+  
+  # Store the results in a data frame
+  result <- data.frame(symbol = symbol,
+                       date = index(rsi)[length(rsi)],
+                       last_price = last_price,
+                       rsi = rsi[length(rsi)],
+                       rsi_ma = ifelse(length(rsi_ma) > 0, rsi_ma[length(rsi_ma)], NA),
+                       flag = flag)
+  
+  # Append the data frame to the list of results
+  results[[symbol]] <- result
+}
+
+# Combine the results into a single data table
+results_dt <- rbindlist(results)
+
+# Add a new column with the moving average cross indicator flag
+results_dt[, ma_cross := ifelse(flag == "BUY", ifelse(shift(flag, 1) == "SELL", "CROSS_UP", "NONE"), 
+                                ifelse(shift(flag, 1) == "BUY", "CROSS_DOWN", "NONE"))]
+
+# Filter the results table to only include rows with "BUY" or "SELL" flags
+results_filtered <- results_dt[flag %in% c("BUY", "SELL")]
+
+# Print the filtered results
+print(results_filtered)
+
+write.csv(results_filtered, "C:\\Users\\Rlwca\\OneDrive\\Documents\\r code\\nasdaq_output.csv")
