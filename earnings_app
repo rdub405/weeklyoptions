@@ -1,0 +1,61 @@
+# shiny_app.R
+
+# Load the required libraries
+library(shiny)
+library(rvest)
+library(tidyverse)
+library(lubridate)
+library(tidyquant)
+
+# Define the UI
+ui <- fluidPage(
+  titlePanel("Options Data Viewer"),
+  sidebarLayout(
+    sidebarPanel(
+      textInput("tickerInput", "Enter Ticker", value = "BABA"),
+      actionButton("submitBtn", "Submit")
+    ),
+    mainPanel(
+      tabsetPanel(
+        tabPanel("Option Data", tableOutput("optionTable")),
+        tabPanel("Put Open Interest Boxplot", plotOutput("boxplot"))
+      )
+    )
+  )
+)
+
+# Define the server logic
+server <- function(input, output) {
+  # Reactive function to fetch option data based on user input
+  options_data <- reactive({
+    ticker <- input$tickerInput
+    options_link <- paste0('https://finance.yahoo.com/quote/', ticker, '/options?p=', ticker, '&straddle=true')
+    # Fetch and process option data (replace this with your existing code)
+    # ...
+
+    # Return the processed options data
+    # For now, return a dummy data frame
+    data.frame(
+      Strike = seq(100, 200, 10),
+      Put_Open_Interest = sample(1:100, 11, replace = TRUE)
+    )
+  })
+
+  # Display option data in a table
+  output$optionTable <- renderTable({
+    options_data()
+  })
+
+  # Generate and display put open interest boxplot
+  output$boxplot <- renderPlot({
+    oi_values <- options_data()
+    oi_values <- oi_values[oi_values$Put_Open_Interest != "-", ]
+    oi_values$Put_Open_Interest <- as.numeric(oi_values$Put_Open_Interest)
+
+    # Boxplot of Put Open Interest
+    boxplot(oi_values$Put_Open_Interest, main = "Put Open Interest Boxplot", ylab = "Open Interest")
+  })
+}
+
+# Run the Shiny app
+shinyApp(ui, server)
