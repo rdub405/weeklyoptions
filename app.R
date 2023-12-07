@@ -13,33 +13,41 @@ library(shiny)
 ui <- fluidPage(
 
     # Application title
-    titlePanel("Earnings Input"),
+    titlePanel("Options Data Viewer Input"),
 
     # Sidebar with a slider input for number of bins 
     sidebarLayout(
         sidebarPanel(
-          textInput("Ticker", "Ticker", "BABA")
+          textInput("tickerInput", "Enter Ticker", "BABA"),
+          hr(), # Add a horizontal rule
+          actionButton("submitBtn", "Submit")
         ),
+        
 
         # Show a plot of the generated distribution
-        mainPanel(
-          textOutput("greeting"),
-          tableOutput("dataTable"),
-          tableOutput("earningsTable")
-        )
+        
+        mainPanel(plotOutput("plot"),
+                  tableOutput("dataTable"),
+                  tableOutput("dataTableStrike"))
     )
 )
+        
+        
 
 # Define server logic required to draw a histogram
-server <- function(input, output) {
-  
-  output$greeting <- renderText({
-    paste("Symbol: ", input$Ticker)
-  })
+server <- function(input, output,session) {
 
-  output$dataTable <- renderTable(put_strike_output_df)
+  # Display option data in a table
   
-  output$earningsTable <- renderTable(earnings_options_df)
+  output$dataTable <- renderTable(earnings_options_df)
+  
+  output$dataTableStrike <- renderTable(strike_output_df)
+  
+  output$plot <- renderPlot({
+    chartSeries(BABA, theme = chartTheme("white"),
+                type = "candlesticks",subset='2023', TA = NULL)
+                addRSI(n=14,maType="EMA")
+  })
 }
 
 # Run the application 
