@@ -1,11 +1,4 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
+
 
 library(shiny)
 
@@ -27,7 +20,7 @@ ui <- fluidPage(
     mainPanel(
       tabsetPanel(
         tabPanel("Chart", plotOutput("plot")),
-        tabPanel("Option Chain", tableOutput("earningsTable")),
+        tabPanel("OptionChain", tableOutput("earningsTable")),
         tabPanel("Past Earnings", tableOutput("dataTable")),
         tabPanel("Analyst Ratings", tableOutput("dataTable")),
         tabPanel("Strike Price", tableOutput("dataTable"))
@@ -41,9 +34,12 @@ server <- function(input, output,session) {
   
   # Display option data in a table
   
+  output$current_price <- renderTable(current_price)
+  
   output$plot <- renderPlot({
-    chartSeries(BABA, theme = chartTheme("white"),
-                type = "candlesticks",subset='2023', TA = NULL)
+    chartSeries(get(ticker), theme = chartTheme("white"),
+                type = "candlesticks",subset='2023', TA = c(addBBands()))
+                addRSI()
   })
 }
 
