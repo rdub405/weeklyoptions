@@ -2,8 +2,6 @@
 library(shiny)
 library(quantmod)
 
-# Source helpers ----
-source("helpers.R")
 
 # User interface ----
 ui <- fluidPage(
@@ -12,26 +10,22 @@ ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
       helpText("Select a stock to examine.
-
         Information will be collected from Yahoo finance."),
       textInput("symb", "Symbol", "SPY"),
       
       dateRangeInput("dates",
                      "Date range",
-                     start = "2023-01-01",
+                     start = "2023-05-01",
                      end = as.character(Sys.Date())),
       
       br(),
-      br(),
       
       checkboxInput("log", "Plot y axis on log scale",
-                    value = FALSE),
-      
-      checkboxInput("adjust",
-                    "Adjust prices for inflation", value = FALSE)
+                    value = FALSE)
     ),
     
-    mainPanel(plotOutput("plot"))
+    mainPanel(plotOutput("plot"),
+              tableOutput("dataTable"))
   )
 )
 
@@ -48,9 +42,11 @@ server <- function(input, output) {
   output$plot <- renderPlot({
     
     chartSeries(dataInput(), theme = chartTheme("white"),
-                type = "line", log.scale = input$log, TA = NULL)
+                type = "candlesticks", log.scale = input$log, TA = c(addBBands()))
+    addRSI()
   })
   
+
 }
 
 # Run the app
