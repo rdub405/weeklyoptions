@@ -23,7 +23,8 @@ weekly_change <- df_o_c %>%
     #,Weekly_Change = close - open)
 
 weekly_move <- weekly_change %>%
-  mutate(week_move = Close_Week_End - Open_Week_Start)
+  mutate(week_move = Close_Week_End - Open_Week_Start) %>%
+  filter(Week != 1)      
 
 
 print(weekly_move)
