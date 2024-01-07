@@ -62,5 +62,5 @@ first_target_strike <- price_now - (price_now * quart_percentage)
 second_target_strike <- price_now - (price_now * upper_fence_percentage)
 
 cat("Current Price: $",price_now , "\n")
-cat("First Target Strike Price: $",round(first_target_strike), "\n")
-cat("Second Target Strike Price: $",round(second_target_strike), "\n")
+cat("First Target Strike Price: $",round(first_target_strike),"expected percentage drop", quart_four , "%\n")
+cat("Second Target Strike Price: $",round(second_target_strike),"expected percentage drop",upper_fence,"%\n")
