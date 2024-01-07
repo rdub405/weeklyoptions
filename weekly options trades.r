@@ -3,7 +3,7 @@ library(dplyr)
 library(plotly)
 
 
-ticker <- c("CSCO")
+ticker <- c("DAL")
 current_price <- getQuote(ticker)
 
 
@@ -27,7 +27,7 @@ df_o_c <- prices %>%
 weekly_change <- df_o_c %>%
   group_by(Week = lubridate::week(date)) %>%
   summarize(Open_Week_Start = first(open),
-    Close_Week_End = last(close))
+            Close_Week_End = last(close))
 
 weekly_move <- weekly_change %>%
   mutate(week_move = ((Close_Week_End - Open_Week_Start)/Open_Week_Start)*100) %>%
@@ -40,7 +40,7 @@ max_drop <- abs(min(weekly_move$week_move))
 
 #BOXPLOT adding jittered point  https://plotly.com/r/box-plots/
 option_box <- plot_ly(y= abs(round((weekly_move$week_move),digits = 1)), type = "box", boxpoints = "all", jitter = 0.3,
-               pointpos = -1.8, name = ticker)
+                      pointpos = -1.8, name = ticker)
 option_box <- option_box %>% layout(title = "Percentage Drop")
 option_box
 
@@ -53,13 +53,14 @@ data <- abs(round((weekly_move$week_move),digits = 1))
 quartiles <- fivenum(data)
 quart_four <-quartiles[4]
 IQR <- quartiles[4] - quartiles[2]
-upper_fence <- quartiles[4] + 1.5 * IQR 
+upper_fence <- quartiles[3] + 1 * IQR 
 cat("Q3:", quart_four)
+
 quart_percentage <- (quart_four / 100)
+upper_fence_percentage <- (upper_fence / 100)
 first_target_strike <- price_now - (price_now * quart_percentage)
+second_target_strike <- price_now - (price_now * upper_fence_percentage)
 
-#cat("Current Price:",price_now)
-cat("First Target Strike Price: $",round(first_target_strike))
-
-
-
+cat("Current Price: $",price_now , "\n")
+cat("First Target Strike Price: $",round(first_target_strike), "\n")
+cat("Second Target Strike Price: $",round(second_target_strike), "\n")
